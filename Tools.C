@@ -115,10 +115,15 @@ uint64_t Tools::getBits(uint64_t source, int32_t low, int32_t high)
   else{
     uint64_t one = 1;
     uint32_t dif = high - low;
-    if(dif == 63){
-      return source;
+    switch(dif)
+    {
+      case 63:
+        return source;
     }
-    return ((source >> low) & ((one << (dif + 1)) - 1));
+    //when subtracting 1 from, for example, 100 (binary), you get 011.
+    //Therefore we take our difference and shift +1 more, making it so,
+    //when we subtract 1, we get the mask we need because the bit leading 1 ahead of what we need becomes 0 when we subtract.
+    return ((source >> low) & ((one << (dif + 1)) - 1)); 
   }
 }
 
@@ -148,10 +153,17 @@ uint64_t Tools::getBits(uint64_t source, int32_t low, int32_t high)
 uint64_t Tools::setBits(uint64_t source, int32_t low, int32_t high)
 {
   if((low < 0 || low > 63) || (high < 0 || high > 63) || (high < low)){
-    return 0;
+    return source;
   }
   else{
-    int64_t mask = 0x000000FF;
+    uint64_t one = 1;
+    uint32_t dif = high - low;
+    switch(dif)
+    {
+      case 63:
+        return 0xffffffffffffffff;
+    }
+    return source | (((one << (dif + 1)) - 1) << low);
 
   }
 }
