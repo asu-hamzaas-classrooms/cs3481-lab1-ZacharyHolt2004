@@ -272,7 +272,28 @@ uint64_t Tools::copyBits(uint64_t source, uint64_t dest,
  */
 uint64_t Tools::setByte(uint64_t source, int32_t byteNum)
 {
-  return 0;
+  //I just did it by a switch because of how simple the task is.
+  switch(byteNum)
+  {
+    case 0:
+      return source | 0x00000000000000ff;
+    case 1:
+      return source | 0x000000000000ff00;
+    case 2:
+      return source | 0x0000000000ff0000;
+    case 3:
+      return source | 0x00000000ff000000;
+    case 4:
+      return source | 0x000000ff00000000;
+    case 5:
+      return source | 0x0000ff0000000000;
+    case 6:
+      return source | 0x00ff000000000000;
+    case 7:
+      return source | 0xff00000000000000;
+    default:
+      return source;
+  }
 }
 
 
@@ -294,7 +315,8 @@ uint64_t Tools::setByte(uint64_t source, int32_t byteNum)
  */
 uint64_t Tools::sign(uint64_t source)
 {
-  return 0;
+  uint32_t leadingBit = getBits(source, 63, 63); //we just get the leading bit and return it.
+  return leadingBit;
 }
 
 /**
@@ -324,6 +346,15 @@ bool Tools::addOverflow(uint64_t op1, uint64_t op2)
   //      Thus, the way to check for an overflow is to compare the signs of the
   //      operand and the result.  For example, if you add two positive numbers, 
   //      the result should be positive, otherwise an overflow occurred.
+  uint32_t op1Sign = sign(op1);
+  uint32_t op2Sign = sign(op2);
+  if(op1Sign == op2Sign){
+    uint64_t sum = op1 + op2;
+    uint64_t sumSign = sign(sum);
+    if(sumSign != op1Sign){
+      return true;
+    }
+  }
   return false;
 }
 
@@ -353,5 +384,15 @@ bool Tools::subOverflow(uint64_t op1, uint64_t op2)
   //Note: you can not simply use addOverflow in this function.  If you negate
   //op1 in order to an add, you may get an overflow. 
   //NOTE: the subtraction is op2 - op1 (not op1 - op2).
+  uint32_t op1Sign = sign(op1);
+  uint32_t op2Sign = sign(op2);
+  if(op1Sign != op2Sign){
+    uint64_t dif = op2 - op1;
+    uint64_t difSign = sign(dif);
+    if(difSign != op2Sign){
+      return true;
+    }
+  }
   return false;
+  
 }
