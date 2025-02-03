@@ -190,7 +190,21 @@ uint64_t Tools::setBits(uint64_t source, int32_t low, int32_t high)
  */
 uint64_t Tools::clearBits(uint64_t source, int32_t low, int32_t high)
 {
-  return 0;
+  if((low < 0 || low > 63) || (high < 0 || high > 63) || (high < low)){
+    return source;
+  }
+  else{
+    //I am going to use the same logic as above, but I will negate the mask.
+    //Doing this in conjunction with an & operator will clear the bits I want to remove.
+    uint64_t one = 1;
+    uint32_t dif = high - low;
+    switch(dif)
+    {
+      case 63:
+        return 0xffffffffffffffff;
+    }
+    return source & ~(((one << (dif + 1)) - 1) << low);
+  }
 }
 
 
@@ -221,7 +235,19 @@ uint64_t Tools::clearBits(uint64_t source, int32_t low, int32_t high)
 uint64_t Tools::copyBits(uint64_t source, uint64_t dest, 
                          int32_t srclow, int32_t dstlow, int32_t length)
 {
-   return 0; 
+   if((srclow < 0 || srclow > 63) || (dstlow < 0 || dstlow > 63) ||
+      (length < 0 || length > 64) || ((srclow + length) > 64) ||
+      ((dstlow + length) > 64)){
+        return dest;
+    }
+    else{
+        uint64_t one = 1;
+        uint64_t sourceBits = getBits(source, srclow, srclow + length - 1);
+        uint64_t destCleared = clearBits(dest, dstlow, dstlow + length - 1);
+        uint64_t finalBitset = destCleared | (sourceBits << dstlow);
+        return finalBitset;
+    }
+
 }
 
 
