@@ -115,15 +115,13 @@ uint64_t Tools::getBits(uint64_t source, int32_t low, int32_t high)
   else{
     uint64_t one = 1;
     uint32_t dif = high - low;
-    switch(dif)
-    {
-      case 63:
-        return source;
-    }
     //when subtracting 1 from, for example, 100 (binary), you get 011.
     //Therefore we take our difference and shift +1 more, making it so,
     //when we subtract 1, we get the mask we need because the bit leading 1 ahead of what we need becomes 0 when we subtract.
-    return ((source >> low) & ((one << (dif + 1)) - 1)); 
+    uint64_t bitSequence = one << dif;
+    bitSequence = bitSequence << 1;
+    bitSequence -= 1;
+    return ((source >> low) & bitSequence);
   }
 }
 
@@ -158,12 +156,11 @@ uint64_t Tools::setBits(uint64_t source, int32_t low, int32_t high)
   else{
     uint64_t one = 1;
     uint32_t dif = high - low;
-    switch(dif)
-    {
-      case 63:
-        return 0xffffffffffffffff;
-    }
-    return source | (((one << (dif + 1)) - 1) << low);
+    uint64_t bitSequence = one << dif;
+    bitSequence = bitSequence << 1;
+    bitSequence -= 1;
+    bitSequence = bitSequence << low;
+    return source | bitSequence;
 
   }
 }
@@ -203,7 +200,11 @@ uint64_t Tools::clearBits(uint64_t source, int32_t low, int32_t high)
       case 63:
         return 0xffffffffffffffff;
     }
-    return source & ~(((one << (dif + 1)) - 1) << low);
+    uint64_t bitSequence = one << dif;
+    bitSequence = bitSequence << 1;
+    bitSequence -= 1;
+    bitSequence = bitSequence << low;
+    return source & ~bitSequence;
   }
 }
 
